@@ -1,0 +1,105 @@
+TERM                                                                                                          PAGE 1
+
+                       1    $MOD842
+                       2    
+0000                   3    ORG 000h
+0000 020039            4    JMP init
+                       5    
+0033                   6    ORG 033h
+0033 02005D            7    JMP val
+0036 02007E            8    JMP main
+                       9    
+0039                  10    init:
+0039 75F00A           11    MOV B,#10
+003C 7400             12    MOV A,#0
+003E 7800             13    MOV R0,#0
+0040 7900             14    MOV R1,#0
+0042 7A00             15    MOV R2,#0
+0044 7B00             16    MOV R3,#0
+0046 7C00             17    MOV R4,#0
+0048 7D00             18    MOV R5,#0
+004A 7E00             19    MOV R6,#0
+004C 7F00             20    MOV R7,#0
+                      21    ;MOV IE, #11000000B
+                      22    ;SETB T2CON.2
+004E D2CA             23    SETB TR2
+0050 D2AF             24    SETB EA
+0052 D2AE             25    SETB EADC
+0054 75EF82           26    MOV ADCCON1, #10000010B
+0057 75D808           27    MOV ADCCON2, #8
+005A 02007E           28    JMP main
+                      29    
+005D                  30    val:
+005D E5DA             31    MOV A, ADCDATAH
+005F 23               32    RL A
+0060 23               33    RL A
+0061 23               34    RL A
+0062 23               35    RL A
+0063 54F0             36    ANL A, #11110000B
+0065 F9               37    MOV R1, A
+0066 E5D9             38    MOV A, ADCDATAL
+0068 03               39    RR A
+0069 03               40    RR A
+006A 03               41    RR A
+006B 03               42    RR A
+006C 540F             43    ANL A, #00001111B
+006E 29               44    ADD A,R1
+006F F8               45    MOV R0, A
+0070 75F00A           46    MOV B,#10
+0073 84               47    DIV AB
+0074 AAF0             48    MOV R2,B
+0076 75F00A           49    MOV B,#10
+0079 84               50    DIV AB
+007A ABF0             51    MOV R3,B
+007C FC               52    MOV R4,A
+007D 32               53    RETI
+                      54    
+007E                  55    main:
+007E 120083           56    CALL display
+0081 80FB             57    JMP main
+                      58    
+TERM                                                                                                          PAGE 2
+
+                      59    
+0083                  60    display:
+0083 EA               61     MOV A, R2
+0084 2400             62     ADD A, #00000000B
+0086 F5A0             63     MOV P2, A
+0088 12009C           64     CALL delay
+008B EB               65     MOV A, R3
+008C 2410             66     ADD A, #00010000B
+008E F5A0             67     MOV P2, A
+0090 12009C           68     CALL delay
+0093 EC               69     MOV A, R4
+0094 2420             70     ADD A, #00100000B
+0096 F5A0             71     MOV P2, A
+0098 12009C           72     CALL delay
+009B 22               73    RET
+                      74    
+009C                  75    delay:
+009C 7EFF             76      MOV R6,#255
+009E 7F0A             77      d_0: MOV R7,#10
+00A0 DFFE             78      DJNZ R7,$
+00A2 DEFA             79      DJNZ R6, d_0
+00A4 22               80    RET
+                      81    
+                      82    END
+
+VERSION 1.2h ASSEMBLY COMPLETE, 0 ERRORS FOUND
+TERM                                                                                                          PAGE 3
+
+ADCCON1. . . . . . . . . . . . .  D ADDR  00EFH  PREDEFINED  
+ADCCON2. . . . . . . . . . . . .  D ADDR  00D8H  PREDEFINED  
+ADCDATAH . . . . . . . . . . . .  D ADDR  00DAH  PREDEFINED  
+ADCDATAL . . . . . . . . . . . .  D ADDR  00D9H  PREDEFINED  
+B. . . . . . . . . . . . . . . .  D ADDR  00F0H  PREDEFINED  
+DELAY. . . . . . . . . . . . . .  C ADDR  009CH  
+DISPLAY. . . . . . . . . . . . .  C ADDR  0083H  
+D_0. . . . . . . . . . . . . . .  C ADDR  009EH  
+EA . . . . . . . . . . . . . . .  B ADDR  00AFH  PREDEFINED  
+EADC . . . . . . . . . . . . . .  B ADDR  00AEH  PREDEFINED  
+INIT . . . . . . . . . . . . . .  C ADDR  0039H  
+MAIN . . . . . . . . . . . . . .  C ADDR  007EH  
+P2 . . . . . . . . . . . . . . .  D ADDR  00A0H  PREDEFINED  
+TR2. . . . . . . . . . . . . . .  B ADDR  00CAH  PREDEFINED  
+VAL. . . . . . . . . . . . . . .  C ADDR  005DH  

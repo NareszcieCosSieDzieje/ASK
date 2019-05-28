@@ -1,0 +1,253 @@
+KL                                                                                                            PAGE 1
+
+                       1    $MOD842
+                       2    ;f0 f1 flagz
+  00B2                 3    w1 EQU P3.2
+  00B3                 4    w2 EQU P3.3
+  00B4                 5    k1 EQU P3.4
+  00B5                 6    k2 EQU P3.5
+  00B7                 7    k3 EQU P3.7
+                       8    ;k4 EQU P3.7
+  00B0                 9    klaw EQU P3 
+                      10    
+0000                  11    ORG 000h
+0000 02000E           12    JMP init
+                      13    
+                      14    ;wyswietlacz pamiec cg ram umiescic polskie znaki lcd
+                      15    
+                      16    ;ORG 003h 
+                      17    ;JMP button
+                      18    
+0003                  19    button:
+0003 78BF             20     MOV R0,#10111111B
+0005 79BF             21     MOV R1,#10111111B
+0007 7ABF             22     MOV R2,#10111111B
+0009 7BBF             23     MOV R3,#10111111B
+000B 7C00             24     MOV R4,#0
+000D 32               25    RETI
+                      26    
+000E                  27    init:
+                      28     ;MOV IE,#81h ;button
+000E 78BF             29     MOV R0,#10111111B
+0010 79BF             30     MOV R1,#10111111B
+0012 7ABF             31     MOV R2,#10111111B
+0014 7BBF             32     MOV R3,#10111111B
+0016 7C00             33     MOV R4,#0
+0018 7D00             34     MOV R5,#0
+001A 7E00             35     MOV R6,#0
+001C 7F00             36     MOV R7,#0
+001E 7400             37     MOV A, #0
+0020 75F000           38     MOV B, #0
+0023 75B0FF           39     MOV P3,#11111111B
+0026 020029           40    JMP main
+                      41    
+0029                  42    main:
+0029 1200DD           43     CALL display
+002C 120061           44     CALL logic
+002F 1200DD           45     CALL display
+0032 1200DD           46     CALL display
+0035 1200DD           47     CALL display 
+0038 1200DD           48     CALL display
+003B 1200DD           49     CALL display
+003E 1200DD           50     CALL display
+0041 1200DD           51     CALL display
+0044 1200DD           52     CALL display
+0047 1200DD           53     CALL display
+004A 1200DD           54     CALL display
+004D 1200DD           55     CALL display
+0050 1200DD           56     CALL display
+0053 1200DD           57     CALL display
+0056 1200DD           58     CALL display
+KL                                                                                                            PAGE 2
+
+0059 1200DD           59     CALL display
+005C 1200DD           60     CALL display
+005F 80C8             61    JMP main
+                      62    
+0061                  63    logic:
+0061 75B0FF           64    MOV P3,#11111111B
+0064                  65    w_1:
+0064 C2B2             66      CLR w1 
+0066 30B40B           67      JNB k1,w1k1 
+0069 30B50D           68      JNB k2,w1k2
+006C 30B70F           69      JNB k3,w1k3
+006F D2B2             70      SETB w1
+0071 020083           71    JMP w_2
+0074 7401             72     w1k1: MOV A,#1
+0076 0200A0           73           JMP w_1end
+0079 7402             74     w1k2: MOV A,#2
+007B 0200A0           75           JMP w_1end
+007E 7403             76     w1k3: MOV A,#3
+0080 0200A0           77           JMP w_1end
+0083                  78    w_2:
+0083 C2B3             79      CLR w2
+0085 30B409           80      JNB k1,w2k1
+0088 30B50B           81      JNB k2,w2k2
+008B 30B70D           82      JNB k3,w2k3
+008E D2B3             83      SETB w2
+0090 22               84    RET
+0091 7404             85      w2k1: MOV A,#4
+0093 0200A6           86            JMP w_2end
+0096 7405             87      w2k2: MOV A,#5
+0098 0200A6           88            JMP w_2end
+009B 7406             89      w2k3: MOV A,#6
+009D 0200A6           90            JMP w_2end
+00A0                  91    w_1end: 
+00A0 D2B2             92     SETB w1
+00A2 1200AC           93     CALL logic_h ;logic_h tylko po zmianie
+00A5 22               94    RET
+00A6                  95    w_2end:
+00A6 D2B3             96     SETB w2
+00A8 1200AC           97     CALL logic_h
+00AB 22               98    RET
+                      99    
+00AC                 100    logic_h:
+00AC B8BF04          101     CJNE R0,#10111111B,h0
+00AF F8              102     MOV R0,A
+00B0 7C01            103     MOV R4,#1
+00B2 22              104    RET
+00B3 B9BF08          105     h0:CJNE R1,#10111111B,h1
+00B6 88F0            106     MOV B,R0 
+00B8 A9F0            107     MOV R1,B
+00BA F8              108     MOV R0,A
+00BB 7C02            109     MOV R4,#2
+00BD 22              110    RET
+00BE BABF0C          111     h1:CJNE R2,#10111111B,h2
+00C1 89F0            112     MOV B,R1
+00C3 AAF0            113     MOV R2,B
+00C5 88F0            114     MOV B,R0
+00C7 A9F0            115     MOV R1,B
+00C9 F8              116     MOV R0,A
+KL                                                                                                            PAGE 3
+
+00CA 7C03            117     MOV R4,#3
+00CC 22              118    RET
+00CD                 119     h2: ;CJNE R3,#10111111B,h3
+00CD 8AF0            120     MOV B,R2
+00CF ABF0            121     MOV R3,B
+00D1 89F0            122     MOV B,R1
+00D3 AAF0            123     MOV R2,B
+00D5 88F0            124     MOV B,R0
+00D7 A9F0            125     MOV R1,B
+00D9 F8              126     MOV R0,A
+00DA 7C04            127     MOV R4,#4
+00DC 22              128    RET
+                     129    
+00DD                 130    display:
+00DD BC0004          131     CJNE R4,#0,d0
+00E0 75A0BF          132     MOV P2,#10111111B
+00E3 22              133    RET
+00E4                 134     d0:
+00E4 BC0106          135     CJNE R4,#1,d1
+00E7 E8              136     MOV A,R0
+00E8 2400            137     ADD A,#00000000B
+00EA F5A0            138     MOV P2,A
+00EC 22              139    RET
+00ED                 140     d1:
+00ED BC020E          141     CJNE R4,#2,d2
+00F0 E8              142     MOV A,R0
+00F1 2400            143     ADD A,#00000000B
+00F3 F5A0            144     MOV P2,A
+00F5 12013B          145     CALL g_delay
+00F8 E9              146     MOV A,R1
+00F9 2410            147     ADD A,#00010000B
+00FB F5A0            148     MOV P2,A
+00FD 22              149    RET
+00FE                 150     d2:
+00FE BC0316          151     CJNE R4,#3,d3
+0101 E8              152     MOV A,R0
+0102 2400            153     ADD A,#00000000B
+0104 F5A0            154     MOV P2,A
+0106 12013B          155     CALL g_delay
+0109 E9              156     MOV A,R1
+010A 2410            157     ADD A,#00010000B
+010C F5A0            158     MOV P2,A
+010E 12013B          159     CALL g_delay
+0111 EA              160     MOV A,R2
+0112 2420            161     ADD A,#00100000B
+0114 F5A0            162     MOV P2,A
+0116 22              163    RET
+0117                 164     d3:
+0117 BC0420          165     CJNE R4,#4,d4
+011A E8              166     MOV A,R0
+011B 2400            167     ADD A,#00000000B
+011D F5A0            168     MOV P2,A
+011F 12013B          169     CALL g_delay
+0122 E9              170     MOV A,R1
+0123 2410            171     ADD A,#00010000B
+0125 F5A0            172     MOV P2,A
+0127 12013B          173     CALL g_delay
+012A EA              174     MOV A,R2
+KL                                                                                                            PAGE 4
+
+012B 2420            175     ADD A,#00100000B
+012D F5A0            176     MOV P2,A
+012F 12013B          177     CALL g_delay
+0132 EB              178     MOV A,R3
+0133 2430            179     ADD A,#00110000B
+0135 F5A0            180     MOV P2,A
+0137 12013B          181     CALL g_delay 
+013A                 182     d4:
+013A 22              183    RET
+                     184    
+013B                 185    g_delay:
+013B 7FFF            186     MOV R7,#255
+013D 7E04            187     g0:MOV R6,#4
+013F DEFE            188     DJNZ R6,$
+0141 DFFA            189     DJNZ R7,g0
+0143 22              190    RET
+                     191    
+0144                 192    s_delay:
+0144 7F64            193     MOV R7,#100
+0146 DFFE            194     DJNZ R7,$
+0148 22              195    RET
+                     196    
+0149                 197    l_delay:
+0149 7E64            198     MOV R6,#100
+014B 3144            199     ld0:CALL s_delay
+014D DEFC            200     DJNZ R6,ld0
+014F 22              201    RET 
+                     202     
+                     203    END
+
+VERSION 1.2h ASSEMBLY COMPLETE, 0 ERRORS FOUND
+KL                                                                                                            PAGE 5
+
+B. . . . . . . . . . . . . . . .  D ADDR  00F0H  PREDEFINED  
+BUTTON . . . . . . . . . . . . .  C ADDR  0003H  NOT USED  
+D0 . . . . . . . . . . . . . . .  C ADDR  00E4H  
+D1 . . . . . . . . . . . . . . .  C ADDR  00EDH  
+D2 . . . . . . . . . . . . . . .  C ADDR  00FEH  
+D3 . . . . . . . . . . . . . . .  C ADDR  0117H  
+D4 . . . . . . . . . . . . . . .  C ADDR  013AH  
+DISPLAY. . . . . . . . . . . . .  C ADDR  00DDH  
+G0 . . . . . . . . . . . . . . .  C ADDR  013DH  
+G_DELAY. . . . . . . . . . . . .  C ADDR  013BH  
+H0 . . . . . . . . . . . . . . .  C ADDR  00B3H  
+H1 . . . . . . . . . . . . . . .  C ADDR  00BEH  
+H2 . . . . . . . . . . . . . . .  C ADDR  00CDH  
+INIT . . . . . . . . . . . . . .  C ADDR  000EH  
+K1 . . . . . . . . . . . . . . .    NUMB  00B4H  
+K2 . . . . . . . . . . . . . . .    NUMB  00B5H  
+K3 . . . . . . . . . . . . . . .    NUMB  00B7H  
+KLAW . . . . . . . . . . . . . .    NUMB  00B0H  NOT USED  
+LD0. . . . . . . . . . . . . . .  C ADDR  014BH  
+LOGIC. . . . . . . . . . . . . .  C ADDR  0061H  
+LOGIC_H. . . . . . . . . . . . .  C ADDR  00ACH  
+L_DELAY. . . . . . . . . . . . .  C ADDR  0149H  NOT USED  
+MAIN . . . . . . . . . . . . . .  C ADDR  0029H  
+P2 . . . . . . . . . . . . . . .  D ADDR  00A0H  PREDEFINED  
+P3 . . . . . . . . . . . . . . .  D ADDR  00B0H  PREDEFINED  
+S_DELAY. . . . . . . . . . . . .  C ADDR  0144H  
+W1 . . . . . . . . . . . . . . .    NUMB  00B2H  
+W1K1 . . . . . . . . . . . . . .  C ADDR  0074H  
+W1K2 . . . . . . . . . . . . . .  C ADDR  0079H  
+W1K3 . . . . . . . . . . . . . .  C ADDR  007EH  
+W2 . . . . . . . . . . . . . . .    NUMB  00B3H  
+W2K1 . . . . . . . . . . . . . .  C ADDR  0091H  
+W2K2 . . . . . . . . . . . . . .  C ADDR  0096H  
+W2K3 . . . . . . . . . . . . . .  C ADDR  009BH  
+W_1. . . . . . . . . . . . . . .  C ADDR  0064H  NOT USED  
+W_1END . . . . . . . . . . . . .  C ADDR  00A0H  
+W_2. . . . . . . . . . . . . . .  C ADDR  0083H  
+W_2END . . . . . . . . . . . . .  C ADDR  00A6H  

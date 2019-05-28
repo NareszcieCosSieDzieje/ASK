@@ -1,0 +1,213 @@
+KLAW                                                                                                          PAGE 1
+
+                       1    $MOD842
+                       2    ;f0 f1 bity flagi
+  00B2                 3    w1 EQU P3.2
+  00B3                 4    w2 EQU P3.3
+  00B4                 5    k1 EQU P3.4
+  00B5                 6    k2 EQU P3.5
+  00B7                 7    k3 EQU P3.7
+                       8    ;k4 EQU P3.7
+  00B0                 9    klaw EQU P3 
+                      10    
+0000                  11    ORG 000h
+0000 020003           12    JMP init
+                      13    
+0003                  14    init:
+0003 7800             15     MOV R0,#0
+0005 7900             16     MOV R1,#0
+0007 7A00             17     MOV R2,#0
+0009 7B00             18     MOV R3,#0
+000B 7C00             19     MOV R4,#0
+000D 7D00             20     MOV R5,#0
+000F 7E00             21     MOV R6,#0
+0011 7F00             22     MOV R7,#0
+0013 7400             23     MOV A, #0
+0015 75F000           24     MOV B, #0
+0018 75B0FF           25     MOV P3,#11111111B
+001B 02001E           26    JMP main
+                      27    
+                      28    
+001E                  29    main:
+001E 120026           30     CALL logic
+                      31     ;CALL s_delay ; moze dluzszy
+0021 1200A3           32     CALL display
+                      33     ;CALL l_delay
+0024 80F8             34    JMP main
+                      35    
+                      36    ;setb w1 w2
+0026                  37    logic:
+0026                  38    w_1:
+0026 C2B2             39      CLR w1 
+0028 30B40B           40      JNB k1,w1k1 
+002B 30B50D           41      JNB k2,w1k2
+002E 30B70F           42      JNB k3,w1k3
+0031 D2B2             43      SETB w1
+0033 020045           44    JMP w_2
+0036 7401             45     w1k1: MOV A,#1
+0038 020062           46           JMP w_1end
+003B 7402             47     w1k2: MOV A,#2
+003D 020062           48           JMP w_1end
+0040 7403             49     w1k3: MOV A,#3
+0042 020062           50           JMP w_1end
+0045                  51    w_2:
+0045 C2B3             52      CLR w2
+0047 30B409           53      JNB k1,w2k1
+004A 30B50B           54      JNB k2,w2k2
+004D 30B70D           55      JNB k3,w2k3
+0050 D2B3             56      SETB w2
+0052 22               57      RET
+0053 7404             58      w2k1: MOV A,#4
+KLAW                                                                                                          PAGE 2
+
+0055 020068           59            JMP w_2end
+0058 7405             60      w2k2: MOV A,#5
+005A 020068           61            JMP w_2end
+005D 7406             62      w2k3: MOV A,#6
+005F 020068           63            JMP w_2end
+0062                  64    w_1end: 
+0062 D2B2             65     SETB w1
+0064 12006E           66     CALL logic_h
+0067 22               67    RET
+0068                  68    w_2end:
+0068 D2B3             69     SETB w2
+006A 12006E           70     CALL logic_h
+006D 22               71    RET
+                      72    
+006E                  73    logic_h:
+006E B80002           74     CJNE R0,#0,h0
+0071 F8               75     MOV R0,A
+0072 22               76     RET
+0073 B90006           77     h0:CJNE R1,#0,h1
+0076 C000             78     PUSH R0
+****------------------------------^
+****ERROR #20: Illegal operand
+0078 D000             79     POP R1
+****-----------------------------^
+****ERROR #20: Illegal operand
+                      80     ;MOV R1,R0
+007A F8               81     MOV R0,A
+007B 22               82     RET
+007C BA000A           83     h1:CJNE R2,#0,h2
+007F C000             84     PUSH R1
+****------------------------------^
+****ERROR #20: Illegal operand
+0081 D000             85     POP R2
+****-----------------------------^
+****ERROR #20: Illegal operand
+                      86     ;MOV R2,R1
+0083 C000             87     PUSH R0
+****------------------------------^
+****ERROR #20: Illegal operand
+0085 D000             88     POP R1
+****-----------------------------^
+****ERROR #20: Illegal operand
+                      89     ;MOV R1,R0
+0087 F8               90     MOV R0,A
+0088 22               91     RET
+0089 BB000E           92     h2:CJNE R3,#0,h3
+008C C000             93     PUSH R2
+****------------------------------^
+****ERROR #20: Illegal operand
+008E D000             94     POP R3
+****-----------------------------^
+****ERROR #20: Illegal operand
+0090 C000             95     PUSH R1
+****------------------------------^
+****ERROR #20: Illegal operand
+0092 D000             96     POP R2
+****-----------------------------^
+****ERROR #20: Illegal operand
+KLAW                                                                                                          PAGE 3
+
+0094 C000             97     PUSH R0
+****------------------------------^
+****ERROR #20: Illegal operand
+0096 D000             98     POP R1
+****-----------------------------^
+****ERROR #20: Illegal operand
+                      99     ;MOV R3,R2
+                     100     ;MOV R2,R1
+                     101     ;MOV R1,R0
+0098 F8              102     MOV R0,A
+0099 22              103     RET
+009A                 104     h3:
+009A 7800            105     MOV R0,#0
+009C 7900            106     MOV R1,#0
+009E 7A00            107     MOV R2,#0
+00A0 7B00            108     MOV R3,#0
+00A2 22              109    RET
+                     110    
+                     111    
+                     112              
+00A3                 113    display:
+00A3 E8              114     MOV A,R0
+00A4 2410            115     ADD A,#00010000B
+00A6 F5A0            116     MOV P2,A
+00A8 22              117    RET
+                     118    
+00A9                 119    s_delay:
+00A9 7FFF            120     MOV R7,#255
+00AB DFFE            121     DJNZ R7,$
+00AD 22              122    RET
+                     123    
+00AE                 124    l_delay:
+00AE 7E64            125     ld0: MOV R6,#100
+00B0 11A9            126          CALL s_delay
+00B2 DEFA            127     DJNZ R6,ld0
+00B4 22              128    RET 
+                     129     
+                     130     
+                     131    END
+                     132    
+                     133    
+                     134    
+
+VERSION 1.2h ASSEMBLY COMPLETE, 12 ERRORS FOUND
+
+ERROR SUMMARY:
+Line #78, ERROR #20: Illegal operand
+Line #79, ERROR #20: Illegal operand
+Line #84, ERROR #20: Illegal operand
+Line #85, ERROR #20: Illegal operand
+Line #87, ERROR #20: Illegal operand
+Line #88, ERROR #20: Illegal operand
+Line #93, ERROR #20: Illegal operand
+Line #94, ERROR #20: Illegal operand
+Line #95, ERROR #20: Illegal operand
+Line #96, ERROR #20: Illegal operand
+Line #97, ERROR #20: Illegal operand
+Line #98, ERROR #20: Illegal operand
+KLAW                                                                                                          PAGE 4
+
+B. . . . . . . . . . . . . . . .  D ADDR  00F0H  PREDEFINED  
+DISPLAY. . . . . . . . . . . . .  C ADDR  00A3H  
+H0 . . . . . . . . . . . . . . .  C ADDR  0073H  
+H1 . . . . . . . . . . . . . . .  C ADDR  007CH  
+H2 . . . . . . . . . . . . . . .  C ADDR  0089H  
+H3 . . . . . . . . . . . . . . .  C ADDR  009AH  
+INIT . . . . . . . . . . . . . .  C ADDR  0003H  
+K1 . . . . . . . . . . . . . . .    NUMB  00B4H  
+K2 . . . . . . . . . . . . . . .    NUMB  00B5H  
+K3 . . . . . . . . . . . . . . .    NUMB  00B7H  
+KLAW . . . . . . . . . . . . . .    NUMB  00B0H  NOT USED  
+LD0. . . . . . . . . . . . . . .  C ADDR  00AEH  
+LOGIC. . . . . . . . . . . . . .  C ADDR  0026H  
+LOGIC_H. . . . . . . . . . . . .  C ADDR  006EH  
+L_DELAY. . . . . . . . . . . . .  C ADDR  00AEH  NOT USED  
+MAIN . . . . . . . . . . . . . .  C ADDR  001EH  
+P2 . . . . . . . . . . . . . . .  D ADDR  00A0H  PREDEFINED  
+P3 . . . . . . . . . . . . . . .  D ADDR  00B0H  PREDEFINED  
+S_DELAY. . . . . . . . . . . . .  C ADDR  00A9H  
+W1 . . . . . . . . . . . . . . .    NUMB  00B2H  
+W1K1 . . . . . . . . . . . . . .  C ADDR  0036H  
+W1K2 . . . . . . . . . . . . . .  C ADDR  003BH  
+W1K3 . . . . . . . . . . . . . .  C ADDR  0040H  
+W2 . . . . . . . . . . . . . . .    NUMB  00B3H  
+W2K1 . . . . . . . . . . . . . .  C ADDR  0053H  
+W2K2 . . . . . . . . . . . . . .  C ADDR  0058H  
+W2K3 . . . . . . . . . . . . . .  C ADDR  005DH  
+W_1. . . . . . . . . . . . . . .  C ADDR  0026H  NOT USED  
+W_1END . . . . . . . . . . . . .  C ADDR  0062H  
+W_2. . . . . . . . . . . . . . .  C ADDR  0045H  
+W_2END . . . . . . . . . . . . .  C ADDR  0068H  

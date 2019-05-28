@@ -1,0 +1,223 @@
+P                                                                                                             PAGE 1
+
+                       1    $MOD842
+                       2    
+                       3    ;P EQU #01010000B
+                       4    ;A EQU #01000001B       
+                       5    ;W EQU #01010111B       
+                       6    ;E EQU #01000101B       
+                       7    ;L EQU #01001100B
+                       8    
+                       9    ;K EQU #01001011B
+                      10    ;R EQU #01010010B
+                      11    ;Y EQU #01011001B
+                      12    ;C EQU #01000011B
+                      13    ;Z EQU #01011010B
+                      14    ;K EQU #01001011B
+                      15    ;A
+                      16    ;EMPTY EQU #00101101B   
+                      17    
+                      18    
+  00A1                19    LCD_D4  EQU P2.1
+  00A0                20    LCD_D5  EQU P2.0
+  00A3                21    LCD_D6  EQU P2.3
+  00A2                22    LCD_D7  EQU P2.2
+  00A5                23    LCD_E   EQU P2.5
+  00A4                24    LCD_RW  EQU P2.4
+  00A7                25    LCD_RS  EQU P2.7
+  00A6                26    LCD_KEY EQU P2.6
+  00A0                27    LCD_PORT EQU P2
+                      28    
+  0030                29    LCD_DATA EQU 30h
+                      30    
+0000                  31    ORG 0000h
+0000 120040           32     CALL LCD_INIT
+0003 1200DE           33     CALL DISPLAY_MSG
+0006 1200C3           34     PTL: CALL display_shift
+0009 1200D1           35     CALL LONG_DELAY
+000C 80F8             36     JMP PTL ;JMP $ 
+                      37    
+0040                  38    org 40h
+                      39    
+0040                  40    LCD_INIT:
+                      41    
+0040 75A000           42     MOV LCD_PORT, #00h
+                      43    
+0043 753033           44     MOV LCD_DATA, #33h     ;pierwsze slowo dodatkowe 
+0046 117D             45     ACALL LCD_WRITE4       ;przeslanie 4 pierwszych bitow
+0048 1198             46     ACALL DELAY
+004A 117D             47     ACALL LCD_WRITE4       ;przeslanie 4 mlodszych bitow
+004C 1198             48     ACALL DELAY
+                      49            
+004E 753032           50     MOV LCD_DATA, #32h     ;dodatkowe drugie slowo
+0051 117D             51     ACALL LCD_WRITE4
+0053 1198             52     ACALL DELAY
+0055 117D             53     ACALL LCD_WRITE4
+0057 1198             54     ACALL DELAY         ;acall to krotki skok
+                      55            
+0059 753028           56     MOV LCD_DATA, #28h     ;czterobitowy interfejs (F)
+005C 117D             57     ACALL LCD_WRITE4
+005E 117D             58     ACALL LCD_WRITE4
+P                                                                                                             PAGE 2
+
+0060 1198             59     ACALL DELAY
+                      60            
+0062 753001           61     MOV LCD_DATA, #01h     ;czyszczenie ekranu i kursor na 0 (A)
+0065 117D             62     ACALL LCD_WRITE4
+0067 117D             63     ACALL LCD_WRITE4
+0069 1198             64     ACALL DELAY
+                      65            
+006B 75300E           66     MOV LCD_DATA, #0Eh     ;wlaczenie ekranu i kursora mrugajacego (D)
+006E 117D             67     ACALL LCD_WRITE4
+0070 117D             68     ACALL LCD_WRITE4
+0072 1198             69     ACALL DELAY
+                      70            
+0074 753006           71     MOV LCD_DATA, #06h     ;czyszczenie ekranu, kusor na 0 (A)
+0077 117D             72     ACALL LCD_WRITE4
+0079 117D             73     ACALL LCD_WRITE4
+007B 1198             74     ACALL DELAY
+                      75            
+007D                  76     LCD_WRITE4:
+007D C0E0             77            PUSH ACC
+007F C2A5             78            CLR LCD_E
+0081 E530             79            MOV A, LCD_DATA ; LCD_DATA = zawartosc P2
+0083 33               80            RLC A
+0084 92A2             81            MOV LCD_D7, C
+0086 33               82            RLC A                   ; przenies uwzgl bit przeniesienia C
+0087 92A3             83            MOV LCD_D6, C
+0089 33               84            RLC A
+008A 92A0             85            MOV LCD_D5, C
+008C 33               86            RLC A 
+008D 92A1             87            MOV LCD_D4, C
+008F D2A5             88            SETB LCD_E      ; zapis
+0091 C2A5             89            CLR LCD_E
+0093 F530             90            MOV LCD_DATA, A
+                      91            
+0095 D0E0             92            POP ACC
+                      93            
+0097 22               94            RET
+                      95    
+                      96    
+0098                  97    DELAY: 
+0098 C0A0             98    PUSH LCD_PORT ;odczyt BG
+009A C2A7             99    CLR LCD_RS
+009C D2A2            100    SETB LCD_D7
+009E D2A4            101    SETB LCD_RW 
+00A0 D2A5            102    SETB LCD_E
+00A2 20A2FD          103    JB LCD_D7,$ ;oczekiwanie na zgloszenoe gotowosci        
+00A5 D0A0            104    POP LCD_PORT
+00A7 22              105    RET
+                     106    
+00A8                 107    LCD_DISPLAY_CHAR:
+00A8 D2A7            108    SETB LCD_RS
+00AA 117D            109    ACALL LCD_WRITE4
+00AC 117D            110    ACALL LCD_WRITE4
+00AE 1198            111    ACALL DELAY
+00B0 22              112    RET
+                     113    
+                     114    
+00B1                 115    DELAY1:
+00B1 7DFF            116            MOV R5, #255
+P                                                                                                             PAGE 3
+
+00B3 DDFE            117            DJNZ R5, $
+00B5 22              118            RET
+                     119    
+00B6                 120    LCD_NEXT_LINE:
+00B6 75A000          121    MOV LCD_PORT,#00h
+00B9 7530C0          122    MOV LCD_DATA,#0C0h ;next line
+00BC 117D            123    ACALL LCD_WRITE4
+00BE 117D            124    ACALL LCD_WRITE4
+00C0 1198            125    ACALL DELAY
+00C2 22              126    RET
+                     127    
+                     128    
+                     129    
+00C3                 130    display_shift:
+00C3 C2A7            131    CLR LCD_RS
+00C5 C2A4            132    CLR LCD_RW
+00C7 75301C          133    MOV LCD_DATA,#00011100B
+00CA 117D            134    ACALL LCD_WRITE4
+00CC 117D            135    ACALL LCD_WRITE4
+00CE 1198            136    ACALL DELAY
+00D0 22              137    RET
+                     138    
+                     139    ;kazda linia 40 znakow
+                     140    
+                     141    
+                     142    
+00D1                 143    LONG_DELAY:
+00D1 7FFF            144            MOV R7,#255
+00D3 7EFF            145            l1:MOV R6,#255
+00D5 7D0A            146            l0:MOV R5,#10
+00D7 DDFE            147            DJNZ R5,$
+00D9 DEFA            148            DJNZ R6,l0
+00DB DFF6            149            DJNZ R7,l1
+00DD 22              150    RET
+                     151    
+00DE                 152    DISPLAY_MSG:
+00DE D2A7            153            SETB LCD_RS
+00E0 C2A4            154            CLR LCD_RW
+                     155            
+00E2 753050          156            MOV LCD_DATA, #01010000B
+00E5 11A8            157            CALL LCD_DISPLAY_CHAR
+00E7 753041          158            MOV LCD_DATA, #01000001B
+00EA 11A8            159            CALL LCD_DISPLAY_CHAR
+00EC 753057          160            MOV LCD_DATA, #01010111B        
+00EF 11A8            161            CALL LCD_DISPLAY_CHAR
+00F1 753045          162            MOV LCD_DATA, #01000101B        
+00F4 11A8            163            CALL LCD_DISPLAY_CHAR
+00F6 75304C          164            MOV LCD_DATA, #01001100B
+00F9 11A8            165            CALL LCD_DISPLAY_CHAR
+00FB 11B6            166            ACALL LCD_NEXT_LINE
+00FD 75304B          167            MOV LCD_DATA, #01001011B        
+0100 11A8            168            CALL LCD_DISPLAY_CHAR
+0102 753052          169            MOV LCD_DATA, #01010010B        
+0105 11A8            170            CALL LCD_DISPLAY_CHAR
+0107 753059          171            MOV LCD_DATA, #01011001B
+010A 11A8            172            CALL LCD_DISPLAY_CHAR   
+010C 753043          173            MOV LCD_DATA, #01000011B
+010F 11A8            174            CALL LCD_DISPLAY_CHAR
+P                                                                                                             PAGE 4
+
+0111 75305A          175            MOV LCD_DATA, #01011010B
+0114 11A8            176            CALL LCD_DISPLAY_CHAR   
+0116 75304B          177            MOV LCD_DATA, #01001011B
+0119 11A8            178            CALL LCD_DISPLAY_CHAR
+011B 753041          179            MOV LCD_DATA, #01000001B
+011E 11A8            180            CALL LCD_DISPLAY_CHAR
+                     181    
+0120 22              182            RET
+                     183    
+                     184    END
+                     185    
+                     186    
+                     187            
+
+VERSION 1.2h ASSEMBLY COMPLETE, 0 ERRORS FOUND
+P                                                                                                             PAGE 5
+
+ACC. . . . . . . . . . . . . . .  D ADDR  00E0H  PREDEFINED  
+DELAY. . . . . . . . . . . . . .  C ADDR  0098H  
+DELAY1 . . . . . . . . . . . . .  C ADDR  00B1H  NOT USED  
+DISPLAY_MSG. . . . . . . . . . .  C ADDR  00DEH  
+DISPLAY_SHIFT. . . . . . . . . .  C ADDR  00C3H  
+L0 . . . . . . . . . . . . . . .  C ADDR  00D5H  
+L1 . . . . . . . . . . . . . . .  C ADDR  00D3H  
+LCD_D4 . . . . . . . . . . . . .    NUMB  00A1H  
+LCD_D5 . . . . . . . . . . . . .    NUMB  00A0H  
+LCD_D6 . . . . . . . . . . . . .    NUMB  00A3H  
+LCD_D7 . . . . . . . . . . . . .    NUMB  00A2H  
+LCD_DATA . . . . . . . . . . . .    NUMB  0030H  
+LCD_DISPLAY_CHAR . . . . . . . .  C ADDR  00A8H  
+LCD_E. . . . . . . . . . . . . .    NUMB  00A5H  
+LCD_INIT . . . . . . . . . . . .  C ADDR  0040H  
+LCD_KEY. . . . . . . . . . . . .    NUMB  00A6H  NOT USED  
+LCD_NEXT_LINE. . . . . . . . . .  C ADDR  00B6H  
+LCD_PORT . . . . . . . . . . . .    NUMB  00A0H  
+LCD_RS . . . . . . . . . . . . .    NUMB  00A7H  
+LCD_RW . . . . . . . . . . . . .    NUMB  00A4H  
+LCD_WRITE4 . . . . . . . . . . .  C ADDR  007DH  
+LONG_DELAY . . . . . . . . . . .  C ADDR  00D1H  
+P2 . . . . . . . . . . . . . . .  D ADDR  00A0H  PREDEFINED  
+PTL. . . . . . . . . . . . . . .  C ADDR  0006H  
